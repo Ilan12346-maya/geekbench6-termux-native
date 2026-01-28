@@ -4,12 +4,15 @@
 
 set -e
 
+INSTALL_DIR="."
+
 # Detect if we should create a subdirectory
 # If 'lib' is missing, we assume a fresh one-liner install and create a folder.
 if [ ! -d "lib" ]; then
     echo "[*] Fresh installation detected. Creating 'geekbench6' directory..."
     mkdir -p geekbench6
     cd geekbench6
+    INSTALL_DIR="geekbench6"
 fi
 
 # Change to the script's directory (handle path execution if not piped)
@@ -24,7 +27,6 @@ GITHUB_RAW="https://raw.githubusercontent.com/Ilan12346-maya/geekbench6-termux-n
 # Check if already installed (Check for .bin file)
 if [ -f "geekbench6.bin" ]; then
     echo "[*] Geekbench is already installed."
-    # Only try to exec if we are in a terminal (not piped)
     if [ -t 0 ]; then
         exec ./geekbench6 "$@"
     else
@@ -39,7 +41,6 @@ echo "=========================================="
 # 1. Download & Extract (Flat - no subfolders)
 if [ ! -f "geekbench.plar" ]; then
     echo "[*] Downloading Geekbench 6.5.0 Preview..."
-    # --strip-components=1 ensures no subfolder is created
     curl -L "$URL" | tar xz --strip-components=1
 fi
 
@@ -51,7 +52,6 @@ if [ ! -d "lib" ] || [ ! -f "lib/ld-linux-aarch64.so.1" ]; then
         echo "    - Downloading $libfile..."
         curl -sL "$GITHUB_RAW/lib/$libfile" -o "lib/$libfile"
     done
-    # Fix permissions for the loader and libs
     chmod +x lib/*.so*
 fi
 
@@ -95,13 +95,21 @@ echo " Setup complete!"
 echo "=========================================="
 echo ""
 
-# 7. Start Prompt (Only if running in an interactive terminal)
-if [ -t 0 ]; then
-    read -p "Do you want to start Geekbench now? (y/n): " choice
-    case "$choice" in 
-      y|Y ) ./geekbench6 ;;
-      * ) echo "You can start Geekbench later with ./geekbench6" ;;
-    esac
-else
-    echo "Installation finished. You can start Geekbench with ./geekbench6"
+# Handle interactive prompt even when piped by reading from /dev/tty
+if [ ! -t 0 ]; then
+    exec < /dev/tty
 fi
+
+read -p "Do you want to start Geekbench now? (y/n): " choice
+case "$choice" in 
+  y|Y ) 
+    ./geekbench6 
+    ;;
+  * ) 
+    if [ "$INSTALL_DIR" = "geekbench6" ]; then
+        echo "You can start Geekbench later with: cd geekbench6 && ./geekbench6"
+    else
+        echo "You can start Geekbench later with: ./geekbench6"
+    fi
+    ;;
+esac
