@@ -4,16 +4,20 @@
 
 set -e
 
-# Change to the script's directory
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$DIR"
+# Change to the script's directory (handle pipe execution)
+if [ -n "$BASH_SOURCE" ]; then
+    DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    cd "$DIR"
+fi
 
 URL="https://cdn.geekbench.com/Geekbench-6.5.0-LinuxARMPreview.tar.gz"
+GITHUB_RAW="https://raw.githubusercontent.com/Ilan12346-maya/geekbench6-termux-native/main"
 
 # Check if already installed (Check for .bin file)
 if [ -f "geekbench6.bin" ]; then
     echo "[*] Geekbench is already installed."
-    exec ./geekbench6 "$@"
+    [ -z "$PIPE_EXEC" ] && exec ./geekbench6 "$@"
+    exit 0
 fi
 
 echo "=========================================="
@@ -27,10 +31,14 @@ if [ ! -f "geekbench.plar" ]; then
     curl -L "$URL" | tar xz --strip-components=1
 fi
 
-# 2. Verify Bundled Libs
+# 2. Verify or Download Bundled Libs
 if [ ! -d "lib" ] || [ ! -f "lib/ld-linux-aarch64.so.1" ]; then
-    echo "[!] Error: The required 'lib' folder is missing or incomplete!"
-    exit 1
+    echo "[*] 'lib' folder missing. Downloading from GitHub..."
+    mkdir -p lib
+    for libfile in ld-linux-aarch64.so.1 libc.so.6 libdl.so.2 libgcc_s.so.1 libm.so.6 libpthread.so.0 libstdc++.so.6; do
+        echo "    - Downloading $libfile..."
+        curl -sL "$GITHUB_RAW/lib/$libfile" -o "lib/$libfile"
+    done
 fi
 
 # 3. Prepare Binaries

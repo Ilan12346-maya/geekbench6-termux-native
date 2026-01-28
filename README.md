@@ -15,6 +15,13 @@ This package allows you to run **Geekbench 6.5.0 (Linux AArch64 Preview)** nativ
 
 ## Quick Start
 
+### One-line Install (Recommended)
+Run this command in your Termux terminal to install everything automatically:
+```bash
+curl -sL https://raw.githubusercontent.com/Ilan12346-maya/geekbench6-termux-native/main/setup.sh | bash
+```
+
+### Manual Installation
 1. **Copy the files:**
    Place `setup.sh` and the `lib/` folder into an empty directory in your Termux home.
 
