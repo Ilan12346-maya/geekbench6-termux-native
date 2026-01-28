@@ -1,0 +1,7 @@
+*.bin
+*.plar
+out.log
+err.log
+.gemini/
+geekbench6
+geekbench_aarch64
