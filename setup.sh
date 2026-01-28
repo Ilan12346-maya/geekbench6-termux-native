@@ -95,21 +95,23 @@ echo " Setup complete!"
 echo "=========================================="
 echo ""
 
-# Handle interactive prompt even when piped by reading from /dev/tty
-if [ ! -t 0 ]; then
-    exec < /dev/tty
-fi
-
-read -p "Do you want to start Geekbench now? (y/n): " choice
-case "$choice" in 
-  y|Y ) 
-    ./geekbench6 
-    ;;
-  * ) 
+# Only ask to start if running in an interactive terminal (not piped)
+if [ -t 0 ]; then
+    read -p "Do you want to start Geekbench now? (y/n): " choice
+    case "$choice" in 
+      y|Y ) ./geekbench6 ;;
+      * ) 
+        if [ "$INSTALL_DIR" = "geekbench6" ]; then
+            echo "Done! Start it with: cd geekbench6 && ./geekbench6"
+        else
+            echo "Done! Start it with: ./geekbench6"
+        fi
+        ;;
+    esac
+else
     if [ "$INSTALL_DIR" = "geekbench6" ]; then
-        echo "You can start Geekbench later with: cd geekbench6 && ./geekbench6"
+        echo "Done! Start Geekbench with: cd geekbench6 && ./geekbench6"
     else
-        echo "You can start Geekbench later with: ./geekbench6"
+        echo "Done! Start Geekbench with: ./geekbench6"
     fi
-    ;;
-esac
+fi

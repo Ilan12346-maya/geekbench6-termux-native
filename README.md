@@ -35,9 +35,24 @@ curl -sL https://raw.githubusercontent.com/Ilan12346-maya/geekbench6-termux-nati
    The script will download the official Geekbench preview and apply the native patch. Once finished, you can start the benchmark immediately.
 
 ## Usage
-After the initial setup, you can run the benchmark at any time using:
+
+### After One-line Install:
+If you used the one-liner, a `geekbench6` folder was created. Run:
+```bash
+cd geekbench6
+./geekbench6
+```
+
+### After Manual/Git Install:
+If you already have the files in your current directory, just run:
 ```bash
 ./geekbench6
+```
+
+### System Info
+To view system information without running the full benchmark:
+```bash
+./geekbench6 --sysinfo
 ```
 
 ## How it works
