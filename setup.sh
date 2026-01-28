@@ -4,8 +4,16 @@
 
 set -e
 
-# Change to the script's directory (handle pipe execution)
-if [ -n "$BASH_SOURCE" ]; then
+# Detect if we should create a subdirectory
+# If 'lib' is missing, we assume a fresh one-liner install and create a folder.
+if [ ! -d "lib" ]; then
+    echo "[*] Fresh installation detected. Creating 'geekbench6' directory..."
+    mkdir -p geekbench6
+    cd geekbench6
+fi
+
+# Change to the script's directory (handle path execution if not piped)
+if [ -n "$BASH_SOURCE" ] && [ -f "$BASH_SOURCE" ]; then
     DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     cd "$DIR"
 fi
@@ -16,8 +24,12 @@ GITHUB_RAW="https://raw.githubusercontent.com/Ilan12346-maya/geekbench6-termux-n
 # Check if already installed (Check for .bin file)
 if [ -f "geekbench6.bin" ]; then
     echo "[*] Geekbench is already installed."
-    [ -z "$PIPE_EXEC" ] && exec ./geekbench6 "$@"
-    exit 0
+    # Only try to exec if we are in a terminal (not piped)
+    if [ -t 0 ]; then
+        exec ./geekbench6 "$@"
+    else
+        exit 0
+    fi
 fi
 
 echo "=========================================="
@@ -33,12 +45,14 @@ fi
 
 # 2. Verify or Download Bundled Libs
 if [ ! -d "lib" ] || [ ! -f "lib/ld-linux-aarch64.so.1" ]; then
-    echo "[*] 'lib' folder missing. Downloading from GitHub..."
+    echo "[*] 'lib' folder missing or incomplete. Downloading from GitHub..."
     mkdir -p lib
     for libfile in ld-linux-aarch64.so.1 libc.so.6 libdl.so.2 libgcc_s.so.1 libm.so.6 libpthread.so.0 libstdc++.so.6; do
         echo "    - Downloading $libfile..."
         curl -sL "$GITHUB_RAW/lib/$libfile" -o "lib/$libfile"
     done
+    # Fix permissions for the loader and libs
+    chmod +x lib/*.so*
 fi
 
 # 3. Prepare Binaries
@@ -81,9 +95,13 @@ echo " Setup complete!"
 echo "=========================================="
 echo ""
 
-# 7. Start Prompt
-read -p "Do you want to start Geekbench now? (y/n): " choice
-case "$choice" in 
-  y|Y ) ./geekbench6 ;;
-  * ) echo "You can start Geekbench later with ./geekbench6" ;;
-esac
+# 7. Start Prompt (Only if running in an interactive terminal)
+if [ -t 0 ]; then
+    read -p "Do you want to start Geekbench now? (y/n): " choice
+    case "$choice" in 
+      y|Y ) ./geekbench6 ;;
+      * ) echo "You can start Geekbench later with ./geekbench6" ;;
+    esac
+else
+    echo "Installation finished. You can start Geekbench with ./geekbench6"
+fi
