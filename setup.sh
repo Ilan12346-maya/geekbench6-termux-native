@@ -95,7 +95,7 @@ echo " Setup complete!"
 echo "=========================================="
 echo ""
 
-# Only ask to start if running in an interactive terminal (not piped)
+# Final message and interactive prompt only if in a real terminal
 if [ -t 0 ]; then
     read -p "Do you want to start Geekbench now? (y/n): " choice
     case "$choice" in 
@@ -110,8 +110,10 @@ if [ -t 0 ]; then
     esac
 else
     if [ "$INSTALL_DIR" = "geekbench6" ]; then
-        echo "Done! Start Geekbench with: cd geekbench6 && ./geekbench6"
+        echo "Installation finished! Start Geekbench with:"
+        echo "cd geekbench6 && ./geekbench6"
     else
-        echo "Done! Start Geekbench with: ./geekbench6"
+        echo "Installation finished! Start Geekbench with:"
+        echo "./geekbench6"
     fi
 fi
