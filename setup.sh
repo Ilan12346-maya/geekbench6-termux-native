@@ -82,11 +82,22 @@ EOF
 
 chmod +x geekbench6 geekbench_aarch64
 
-# 6. Optimization (optional)
+# 6. Optimization (patchelf)
+if ! command -v patchelf &> /dev/null; then
+    echo "[*] patchelf not found. Installing..."
+    if ! pkg install patchelf -y; then
+        echo "[!] Critical Error: Failed to install patchelf. Optimization is required for native execution."
+        exit 1
+    fi
+fi
+
 if command -v patchelf &> /dev/null; then
     echo "[*] Optimizing binaries (patchelf)..."
-    patchelf --set-rpath '\$ORIGIN/lib' geekbench6.bin || true
-    patchelf --set-rpath '\$ORIGIN/lib' geekbench_aarch64.bin || true
+    patchelf --set-rpath '$ORIGIN/lib' geekbench6.bin || { echo "[!] Failed to optimize geekbench6.bin"; exit 1; }
+    patchelf --set-rpath '$ORIGIN/lib' geekbench_aarch64.bin || { echo "[!] Failed to optimize geekbench_aarch64.bin"; exit 1; }
+else
+    echo "[!] Critical Error: patchelf is still missing after installation attempt."
+    exit 1
 fi
 
 echo ""
