@@ -12,6 +12,7 @@ This package allows you to run **Geekbench 6.5.0 (Linux AArch64 Preview)** nativ
 - An Android device with an **ARM64 (AArch64)** processor.
 - **Termux** installed.
 - Internet connection (for the initial download).
+- **patchelf:** The script will automatically try to install this via `pkg install patchelf` to optimize the binaries.
 
 ## Quick Start
 
@@ -58,8 +59,9 @@ To view system information without running the full benchmark:
 ## How it works
 Standard Linux binaries expect a `glibc` environment, which Android (Bionic) does not provide. This patch:
 1. Bundles the necessary GNU C libraries in a local `lib/` folder.
-2. Uses a wrapper script to unset incompatible Android environment variables (`LD_PRELOAD`).
-3. Forces the binary to use the local loader and libraries.
+2. Uses `patchelf` to set the `RPATH` of the binaries to the local `lib` directory.
+3. Uses a wrapper script to unset incompatible Android environment variables (`LD_PRELOAD`).
+4. Forces the binary to use the local loader and libraries.
 
 ## Credits
 - **Geekbench 6** is a product of [Primate Labs](https://www.primatelabs.com/).
