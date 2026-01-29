@@ -1,6 +1,6 @@
 # Geekbench 6 Native Termux Patch
 
-This package allows you to run **Geekbench 6.5.0 (Linux AArch64 Preview)** natively on Termux without the need for `proot`, `chroot`, or a full Linux distribution.
+This package allows you to run **Geekbench 6.5.0 (Linux AArch64 Preview)** natively on Termux without the need for `proot`, `chroot`, just Termux
 
 ## Features
 - **Native Performance:** Runs directly on Termux (Android) using bundled glibc libraries.
